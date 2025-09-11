@@ -1,4 +1,3 @@
-# conftest.py
 import os
 import uuid
 import requests
@@ -27,24 +26,21 @@ def base_url():
     return BASE_URL.rstrip('/')
 
 @pytest.fixture(scope="session")
-def test_user(base_url):
-    """Create a unique user for the test session to avoid collisions."""
+def auth_token(base_url):
+    """Ensure test user exists, then log in and return JWT token."""
     username = f"testuser_{uuid.uuid4().hex[:8]}"
     password = "Password123!"
     payload = {"username": username, "password": password}
-    # attempt signup (may return 201 or 200)
-    try:
-        requests.post(f"{base_url}/signup", json=payload, timeout=5)
-    except Exception:
-        # ignore network errors here; actual tests will assert connectivity
-        pass
-    return payload
 
-@pytest.fixture(scope="session")
-def auth_token(base_url, test_user):
-    """Log in and return JWT token string."""
-    res = requests.post(f"{base_url}/login", json=test_user, timeout=5)
-    assert res.status_code == 200, f"Login failed: {res.status_code} {res.text}"
-    token = _extract_token(res.json())
-    assert token, f"Token not found in login response: {res.text}"
+    # Signup first
+    signup_res = requests.post(f"{base_url}/signup", json=payload, timeout=5)
+    assert signup_res.status_code in (200, 201), f"Signup failed: {signup_res.status_code} {signup_res.text}"
+
+    # Login to get JWT
+    login_res = requests.post(f"{base_url}/login", json=payload, timeout=5)
+    assert login_res.status_code == 200, f"Login failed: {login_res.status_code} {login_res.text}"
+
+    token = _extract_token(login_res.json())
+    assert token, f"Token not found in login response: {login_res.text}"
+
     return token
