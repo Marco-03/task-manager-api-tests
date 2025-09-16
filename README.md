@@ -1,7 +1,7 @@
 
 # Task Manager API - Automated Tests
 
-[![API Tests](https://github.com/Marco-03/task-manager-api-tests/actions/workflows/pytest.yml/badge.svg)](https://github.com/Marco-03/task-manager-api-tests/actions/workflows/pytest.yml)
+![API Tests](https://github.com/Marco-03/task-manager-api-tests/actions/workflows/pytest.yml/badge.svg?branch=main)
 
 ## Overview
 
